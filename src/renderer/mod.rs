@@ -12,9 +12,8 @@ impl Renderer {
   }
   
   fn prepare(&self) {
-    cursor::to(0, self.size.y);
-    clear::above_cursor();
     cursor::to(0, 0);
+    clear::under_cursor();
   }
 }
 

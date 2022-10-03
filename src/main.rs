@@ -1,10 +1,10 @@
-mod renderer;
+use game::Game;
+
+mod game;
 mod snake;
 mod utils;
 
 fn main() {
-  let player = snake::player::Player::new();
-  let renderer = renderer::new(snake::Vec2::new(16, 16));
-  renderer.render();
-  println!("Heyo!");
+  let game = Game::new((64, 24));
+  game.start();
 }

@@ -36,10 +36,6 @@ impl Renderer {
     r
   }
 
-  fn wrapped_pos(&self, pos: &mut (u16, u16)) {
-    todo!();
-  } 
-
   fn get_frame(size: (u16, u16)) -> String {
     let mut frame = String::new();
     frame.push('┏');

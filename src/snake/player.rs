@@ -43,8 +43,11 @@ impl Player {
   }
 
   pub fn tick(&mut self, num: u128) {
-    self.tick_move(controls::get_input(1000), num);
-    // self.direction = (0, 0);
+    let timeout = match self.head().direction.1 {
+      x if x != 0 => 110,
+      _ => 50
+    };
+    self.tick_move(controls::get_input(timeout), num);
   }
 
   fn tick_move(&mut self, new_direction: Option<(i16, i16)>, num: u128) {
@@ -61,7 +64,7 @@ impl Player {
         self.parts[i].direction = self.parts[i - 1].direction;
       }
       let mut part = &mut self.parts[i];
-      part.pos = utils::wrapped_pos(self.field_size , (part.direction.0 + part.pos.0, part.direction.1 + part.pos.1));
+      part.pos = utils::wrapped_pos(self.field_size, (part.direction.0 + part.pos.0, part.direction.1 + part.pos.1));
     }
   }
 
@@ -76,8 +79,4 @@ impl Player {
   fn head_mut(&mut self) -> &mut Part {
     self.parts.first_mut().unwrap()
   }
-  
-  // fn tail_mut(&mut self) -> &mut Part {
-  //   self.parts.last_mut().unwrap()
-  // }
 }

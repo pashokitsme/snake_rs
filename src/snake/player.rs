@@ -5,6 +5,7 @@ pub struct Part<'a> {
 
 pub struct Player<'a> {
   pub direction: (u16, u16),
+  field_size: (u16, u16),
   parts: Vec<Part<'a>>
 }
 
@@ -15,17 +16,13 @@ impl Player<'_> {
     self.parts.push(part);
   }
 
-  pub fn new() -> Player<'static> {
-    let mut pl = Player { direction: (0, 0), parts: Vec::new() };
-    pl.parts.push(Part { pos: (0, 0), symbol: &'O' });
-    pl
-  }
+  
 
-  pub fn handle_move(&self, direction: (i16, i16)) {
+  pub fn tick_move(&self, direction: (i16, i16)) {
     
   }
 
-  pub fn handle_idle(&self) {
+  pub fn tick_idle(&self) {
 
   }
 }

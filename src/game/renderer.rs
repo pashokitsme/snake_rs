@@ -1,18 +1,24 @@
-use std::io::stdout;
+use std::io::{stdout, Write};
 
-use crossterm::{execute};
-
+use crossterm::execute;
 use crate::utils::console::{cursor, clear};
-use super::frame::Frame;
 
-pub struct Renderer<'a> {
+pub struct Renderer {
   pub size: (u16, u16),
-  default_buf: &'a [u8]
+  buf: Vec<u8>,
 }
 
-impl Renderer<'_> {
-  pub fn render(&self, frame: &Frame) {
+impl Renderer {
+  pub fn render(&self) {
     self.prepare();
+    self.display_buf();
+  }
+  
+  fn display_buf(&self) {
+    self.prepare();
+    stdout().write_all(&self.buf)
+        .expect("Error while displaying buf");
+    stdout().flush().unwrap();
   }
   
   fn prepare(&self) {
@@ -20,25 +26,26 @@ impl Renderer<'_> {
     clear::under_cursor();
   }
 
-  pub fn new(size: (u16, u16)) -> Renderer<'static> {
-    todo!();
-
+  pub fn new(size: (u16, u16)) -> Renderer {
     clear::all();
     cursor::to(0, 0);
-    let default_buf = Renderer::get_frame(size).as_bytes();
+    let buf = Renderer::get_frame(size).as_bytes().to_owned();
     execute!(stdout(), crossterm::cursor::Hide).unwrap();
-    Renderer { size, default_buf }
+    let r = Renderer { size, buf };
+    r.display_buf();
+    r
   }
+
+  fn wrapped_pos(&self, pos: &mut (u16, u16)) {
+    todo!();
+  } 
 
   fn get_frame(size: (u16, u16)) -> String {
     let mut frame = String::new();
     frame.push('┏');
     frame.push_str(&str::repeat("─", (size.0 - 2) as usize));
     frame.push('┓');
-
-    let wall = format!("\n│{}│", str::repeat(" ", (size.0 - 2) as usize)).repeat((size.1 - 2) as usize);
-    frame.push_str(&wall);
-
+    frame.push_str(&format!("\n│{}│", str::repeat(" ", (size.0 - 2) as usize)).repeat((size.1 - 2) as usize));
     frame.push('\n');
     frame.push('┗');
     frame.push_str(&str::repeat("─", (size.0 - 2) as usize));

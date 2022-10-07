@@ -1,8 +1,8 @@
 use std::time::Duration;
 use crossterm::event::{poll, read, Event, KeyCode};
 
-pub fn get_input() -> Option<(i16, i16)> {
-  if poll(Duration::from_millis(1000)).unwrap() == false {
+pub fn get_input(timeout: u64) -> Option<(i16, i16)> {
+  if poll(Duration::from_millis(timeout)).unwrap() == false {
     return None;
   }
 

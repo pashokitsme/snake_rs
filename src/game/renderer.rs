@@ -57,9 +57,6 @@ impl Renderer {
     for i in 1..size.1 {
       buf[i][0] = b'|';
       buf[i][size.0 - 1] = b'|';
-      for j in 1..size.0 - 1 {
-        buf[i][j] = b' ';
-      }
     }
 
     buf[size.1 - 1][0] = b'+';

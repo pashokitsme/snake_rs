@@ -1,6 +1,5 @@
 use crate::snake::player::Player;
-
-use super::{renderer::Renderer, controls::get_input};
+use super::{renderer::Renderer};
 
 pub struct Game<'a> {
   player: Player<'a>,
@@ -8,26 +7,23 @@ pub struct Game<'a> {
 }
 
 impl<'a> Game<'a> {
-  pub fn new(size: (u16, u16)) -> Game<'a> {
+  pub fn new(size: (i16, i16)) -> Game<'a> {
     let player = Player::new(size);
     let renderer = Renderer::new(size);
     Game { player, renderer }
   }
 
-  pub fn start(&self) {
+  pub fn start(&mut self) {
+      self.renderer.render(&self.player);
       self.next();
-      self.renderer.render();
   }
 
-  fn tick(&self) {
-    match get_input() {
-      Some(x) => self.player.tick_move(x),
-      None => self.player.tick_idle()
-    }
+  fn tick(&mut self) {
+    self.player.tick();
   }
 
-  fn next(&self) {
+  fn next(&mut self) {
     self.tick();
-    self.renderer.render();
+    self.renderer.render(&self.player);
   }
 }

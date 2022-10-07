@@ -1,52 +1,74 @@
 use std::io::{stdout, Write};
-
 use crossterm::execute;
-use crate::utils::console::{cursor, clear};
+use crate::{utils::console::{cursor, clear}, snake::player::Player};
 
 pub struct Renderer {
-  pub size: (u16, u16),
-  buf: Vec<u8>,
+  pub size: (i16, i16),
+  pub buf: Vec<Vec<u8>>,
 }
 
 impl Renderer {
-  pub fn render(&self) {
+  pub fn render(&mut self, player: &Player) {
     self.prepare();
+    player.render(&mut self.buf);
     self.display_buf();
   }
   
   fn display_buf(&self) {
     self.prepare();
-    stdout().write_all(&self.buf)
-        .expect("Error while displaying buf");
+
+    let mut d_buf: Vec<u8> = vec![];
+    for line in &self.buf {
+      d_buf.extend(line);
+      d_buf.push(b'\n')
+    }
+
+    stdout().write_all(&d_buf)
+            .expect("Error while displaying buf");
     stdout().flush().unwrap();
   }
   
   fn prepare(&self) {
     cursor::to(0, 0);
     clear::under_cursor();
+    stdout().flush().unwrap();
   }
 
-  pub fn new(size: (u16, u16)) -> Renderer {
+  pub fn new(size: (i16, i16)) -> Renderer {
     clear::all();
     cursor::to(0, 0);
-    let buf = Renderer::get_frame(size).as_bytes().to_owned();
+    let buf = Renderer::get_default_buf(size);
     execute!(stdout(), crossterm::cursor::Hide).unwrap();
     let r = Renderer { size, buf };
     r.display_buf();
     r
   }
 
-  fn get_frame(size: (u16, u16)) -> String {
-    let mut frame = String::new();
-    frame.push('┏');
-    frame.push_str(&str::repeat("─", (size.0 - 2) as usize));
-    frame.push('┓');
-    frame.push_str(&format!("\n│{}│", str::repeat(" ", (size.0 - 2) as usize)).repeat((size.1 - 2) as usize));
-    frame.push('\n');
-    frame.push('┗');
-    frame.push_str(&str::repeat("─", (size.0 - 2) as usize));
-    frame.push('┛');
-    frame
+  fn get_default_buf(size: (i16, i16)) -> Vec<Vec<u8>> {
+    let size = (size.0 as usize, size.1 as usize);
+    let mut buf = vec![vec![b' '; size.0]; size.1];
+
+    buf[0][0] = b'+';
+    buf[0][size.0 - 1] = b'+';
+    for i in 1..size.0 - 1 {
+      buf[0][i] = b'-';
+    }
+
+    for i in 1..size.1 {
+      buf[i][0] = b'|';
+      buf[i][size.0 - 1] = b'|';
+      for j in 1..size.0 - 1 {
+        buf[i][j] = b' ';
+      }
+    }
+
+    buf[size.1 - 1][0] = b'+';
+    buf[size.1 - 1][size.0 - 1] = b'+';
+    for i in 1..size.0 - 1 {
+      buf[size.1 - 1][i] = b'-';
+    }
+
+    buf
   }
 }
 

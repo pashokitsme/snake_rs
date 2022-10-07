@@ -1,6 +1,6 @@
 mod renderer;
 mod game;
-mod controls;
+pub mod controls;
 
 pub use game::Game;
 

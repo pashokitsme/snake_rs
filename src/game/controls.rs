@@ -1,10 +1,8 @@
 use std::time::Duration;
-
 use crossterm::event::{poll, read, Event, KeyCode};
 
 pub fn get_input() -> Option<(i16, i16)> {
   if poll(Duration::from_millis(1000)).unwrap() == false {
-    println!("timeout!");
     return None;
   }
 

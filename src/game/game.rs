@@ -1,13 +1,13 @@
 use crate::snake::player::Player;
-use super::{renderer::Renderer};
+use super::renderer::Renderer;
 
-pub struct Game<'a> {
-  player: Player<'a>,
+pub struct Game {
+  player: Player,
   renderer: Renderer,
 }
 
-impl<'a> Game<'a> {
-  pub fn new(size: (i16, i16)) -> Game<'a> {
+impl Game {
+  pub fn new(size: (i16, i16)) -> Game {
     let player = Player::new(size);
     let renderer = Renderer::new(size);
     Game { player, renderer }
@@ -15,7 +15,9 @@ impl<'a> Game<'a> {
 
   pub fn start(&mut self) {
       self.renderer.render(&self.player);
-      self.next();
+      loop {
+        self.next();
+      }
   }
 
   fn tick(&mut self) {

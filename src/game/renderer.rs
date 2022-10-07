@@ -4,6 +4,7 @@ use crate::{utils::console::{cursor, clear}, snake::player::Player};
 
 pub struct Renderer {
   pub size: (i16, i16),
+  pub default_buf: Vec<Vec<u8>>,
   pub buf: Vec<Vec<u8>>,
 }
 
@@ -15,8 +16,6 @@ impl Renderer {
   }
   
   fn display_buf(&self) {
-    self.prepare();
-
     let mut d_buf: Vec<u8> = vec![];
     for line in &self.buf {
       d_buf.extend(line);
@@ -25,13 +24,14 @@ impl Renderer {
 
     stdout().write_all(&d_buf)
             .expect("Error while displaying buf");
-    stdout().flush().unwrap();
+    stdout().flush()
+        .expect("Error while flushing display");
   }
   
-  fn prepare(&self) {
+  fn prepare(&mut self) {
     cursor::to(0, 0);
     clear::under_cursor();
-    stdout().flush().unwrap();
+    self.buf = self.default_buf.clone();
   }
 
   pub fn new(size: (i16, i16)) -> Renderer {
@@ -39,7 +39,7 @@ impl Renderer {
     cursor::to(0, 0);
     let buf = Renderer::get_default_buf(size);
     execute!(stdout(), crossterm::cursor::Hide).unwrap();
-    let r = Renderer { size, buf };
+    let r = Renderer { size, default_buf: buf.clone(), buf };
     r.display_buf();
     r
   }

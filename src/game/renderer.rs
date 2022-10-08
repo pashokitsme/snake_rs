@@ -1,6 +1,6 @@
 use std::io::{stdout, Write};
 use crossterm::execute;
-use crate::{utils::console::{cursor, clear}};
+use crate::utils::console::{cursor, clear};
 
 use super::player::Player;
 

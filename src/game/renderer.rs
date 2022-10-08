@@ -1,6 +1,8 @@
 use std::io::{stdout, Write};
 use crossterm::execute;
-use crate::{utils::console::{cursor, clear}, snake::player::Player};
+use crate::{utils::console::{cursor, clear}};
+
+use super::player::Player;
 
 pub struct Renderer {
   pub size: (i16, i16),

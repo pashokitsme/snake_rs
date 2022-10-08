@@ -1,5 +1,4 @@
-use crate::snake::player::Player;
-use super::renderer::Renderer;
+use super::{renderer::Renderer, player::Player};
 
 pub struct Game {
   player: Player,

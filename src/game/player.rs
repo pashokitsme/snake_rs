@@ -47,24 +47,38 @@ impl Player {
       x if x != 0 => 110,
       _ => 50
     };
-    self.tick_move(controls::get_input(timeout), num);
+    self.tick_move(controls::get_input(timeout));
   }
 
-  fn tick_move(&mut self, new_direction: Option<(i16, i16)>, num: u128) {
+  fn tick_move(&mut self, new_direction: Option<(i16, i16)>) {
     match new_direction {
       Some(x) => {
         self.head_mut()
           .direction = x
       },
-      None => {},
+      None => {return},
     }
 
+    let mut turned_at: Option<(i16, i16)> = None;
+
     for i in 0..self.parts.len() {
-      if i > 0 && num % (self.parts[i].count as u128 + 1) == 0 {
-        self.parts[i].direction = self.parts[i - 1].direction;
-      }
       let mut part = &mut self.parts[i];
       part.pos = utils::wrapped_pos(self.field_size, (part.direction.0 + part.pos.0, part.direction.1 + part.pos.1));
+
+      match turned_at {
+        Some(pos) => {
+          if self.parts[i].pos == pos {
+            self.parts[i].direction = self.parts[i - 1].direction;
+          }
+        }
+        None => {
+          if i > 0 && self.parts[i].direction != self.parts[i - 1].direction {
+            self.parts[i].direction = self.parts[i - 1].direction;
+            turned_at = Some(self.parts[i].pos);
+          }
+        }
+      }
+
     }
   }
 

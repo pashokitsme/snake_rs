@@ -6,8 +6,8 @@ pub struct Game {
 }
 
 impl Game {
-  pub fn new(size: (i16, i16)) -> Game {
-    let player = Player::new(size);
+  pub fn new(size: (i16, i16), init_parts: usize) -> Game {
+    let player = Player::new(size, init_parts);
     let renderer = Renderer::new(size);
     Game { player, renderer }
   }

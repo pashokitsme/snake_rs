@@ -4,5 +4,3 @@ mod player;
 mod controls;
 
 pub use game::Game;
-
-

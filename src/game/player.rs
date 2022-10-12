@@ -22,15 +22,12 @@ pub struct Player {
 }
 
 impl Player {
-  pub fn new(size: (i16, i16)) -> Player {
+  pub fn new(size: (i16, i16), parts: usize) -> Player {
     let head = Part { pos: (size.0 / 2, size.1 / 2), count: 0, symbol: b'O', dir: (1, 0), prev_dir: (1, 0) };
     let mut pl = Player { field_size: size, parts: vec![head] };
-    pl.add_part();
-    pl.add_part();
-    pl.add_part();
-    pl.add_part();
-    pl.add_part();
-    pl.add_part();
+    for _ in 0..parts {
+      pl.add_part()
+    }
     pl
   }
 
@@ -42,7 +39,6 @@ impl Player {
         return;
       }
     }
-    let last = self.parts.last().unwrap();
     self.parts.push(Part { pos, count: last.count + 1, symbol: b'o', dir: last.dir, prev_dir: last.prev_dir });
   }
 
@@ -61,15 +57,17 @@ impl Player {
     self.tick_move(controls::get_input(timeout));
   }
 
-  fn tick_move(&mut self, new_direction: Option<(i16, i16)>) {
-    match new_direction {
-      Some(x) => {
-        let size = self.field_size;
-        let head = self.head_mut();
-        head.set_dir(x);
-        head.pos = utils::wrapped_pos(size, (head.dir.0 + head.pos.0, head.dir.1 + head.pos.1));
-      },
-      None => return,
+  fn tick_move(&mut self, new_dir: Option<(i16, i16)>) {
+    {
+      let size = self.field_size;
+      let head = self.head_mut();
+      match new_dir {
+        Some(x) => {
+          head.set_dir(x);
+        },
+        None => return,
+      }
+      head.pos = utils::wrapped_pos(size, (head.dir.0 + head.pos.0, head.dir.1 + head.pos.1));
     }
 
     for i in 1..self.parts.len() {

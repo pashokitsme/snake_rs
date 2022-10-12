@@ -2,15 +2,14 @@ use super::{renderer::Renderer, player::Player};
 
 pub struct Game {
   player: Player,
-  renderer: Renderer,
-  total_ticks: u128
+  renderer: Renderer
 }
 
 impl Game {
   pub fn new(size: (i16, i16)) -> Game {
     let player = Player::new(size);
     let renderer = Renderer::new(size);
-    Game { player, renderer, total_ticks: 0 }
+    Game { player, renderer }
   }
 
   pub fn start(&mut self) {
@@ -21,8 +20,7 @@ impl Game {
   }
 
   fn tick(&mut self) {
-    self.player.tick(self.total_ticks);
-    self.total_ticks += 1;
+    self.player.tick();
   }
 
   fn next(&mut self) {

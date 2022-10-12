@@ -25,7 +25,7 @@ impl Renderer {
     }
 
     stdout().write_all(&d_buf)
-            .expect("Error while displaying buf");
+        .expect("Error while displaying buf");
     stdout().flush()
         .expect("Error while flushing display");
   }

@@ -3,7 +3,6 @@ use crate::game::controls;
 
 pub struct Part {
   pub pos: (i16, i16),
-  pub count: i16,
   pub dir: (i16, i16),
   pub prev_dir: (i16, i16),
   pub symbol: u8
@@ -23,7 +22,7 @@ pub struct Player {
 
 impl Player {
   pub fn new(size: (i16, i16), parts: usize) -> Player {
-    let head = Part { pos: (size.0 / 2, size.1 / 2), count: 0, symbol: b'O', dir: (1, 0), prev_dir: (1, 0) };
+    let head = Part { pos: (size.0 / 2, size.1 / 2), symbol: b'O', dir: (1, 0), prev_dir: (1, 0) };
     let mut pl = Player { field_size: size, parts: vec![head] };
     for _ in 0..parts {
       pl.add_part()
@@ -39,7 +38,7 @@ impl Player {
         return;
       }
     }
-    self.parts.push(Part { pos, count: last.count + 1, symbol: b'o', dir: last.dir, prev_dir: last.prev_dir });
+    self.parts.push(Part { pos, symbol: b'o', dir: last.dir, prev_dir: last.prev_dir });
   }
 
   pub fn render(&self, buf: &mut Vec<Vec<u8>>) {
@@ -78,6 +77,10 @@ impl Player {
       this.pos = utils::wrapped_pos(self.field_size, (this.dir.0 + this.pos.0, this.dir.1 + this.pos.1));
     }
   }
+
+  // pub fn count(&self) -> usize {
+  //   self.parts.len()
+  // }
 
   fn head(&self) -> &Part {
     self.parts.first().unwrap()

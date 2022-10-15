@@ -1,7 +1,8 @@
 use crate::utils;
 use crate::game::controls;
 
-pub struct Part {
+#[derive(Clone, Copy)]
+struct Part {
   pub pos: (i16, i16),
   pub dir: (i16, i16),
   pub prev_dir: (i16, i16),
@@ -58,15 +59,20 @@ impl Player {
 
   fn tick_move(&mut self, new_dir: Option<(i16, i16)>) {
     {
-      let size = self.field_size;
-      let head = self.head_mut();
       match new_dir {
         Some(x) => {
-          head.set_dir(x);
+          self.head_mut().set_dir(x);
         },
         None => return,
       }
-      head.pos = utils::wrapped_pos(size, (head.dir.0 + head.pos.0, head.dir.1 + head.pos.1));
+      let head = self.head().to_owned();
+      let desired_pos = utils::wrapped_pos(self.field_size, (head.dir.0 + head.pos.0, head.dir.1 + head.pos.1));
+
+      if self.is_have_collides(desired_pos) {
+        panic!("Loss")
+      }
+
+      self.head_mut().pos = desired_pos;
     }
 
     for i in 1..self.parts.len() {
@@ -74,13 +80,21 @@ impl Player {
       let mut this = slice.1.first_mut().unwrap();
       let prev = slice.0.last().unwrap();
       this.set_dir(prev.prev_dir);
+
       this.pos = utils::wrapped_pos(self.field_size, (this.dir.0 + this.pos.0, this.dir.1 + this.pos.1));
     }
   }
 
-  // pub fn count(&self) -> usize {
-  //   self.parts.len()
-  // }
+  fn is_have_collides(&self, desired_pos: (i16, i16)) -> bool {
+    for part in self.parts.iter() {
+      if part.pos == desired_pos {
+        println!("Collides with part {:?}", part.pos);
+        return true
+      }
+    }
+
+    false
+  }
 
   fn head(&self) -> &Part {
     self.parts.first().unwrap()

@@ -1,5 +1,8 @@
 use super::{renderer::Renderer, player::Player};
 
+
+// TODO: Make GameObject trait: symbol, pos, tick (?)
+
 pub struct Game {
   player: Player,
   renderer: Renderer

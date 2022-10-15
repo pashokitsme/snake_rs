@@ -2,7 +2,7 @@ use crate::utils;
 use crate::game::controls;
 
 #[derive(Clone, Copy)]
-struct Part {
+pub struct Part {
   pub pos: (i16, i16),
   pub dir: (i16, i16),
   pub prev_dir: (i16, i16),
@@ -81,7 +81,7 @@ impl Player {
     let head = self.head().to_owned();
     let desired_pos = utils::wrapped_pos(self.field_size, (head.dir.0 + head.pos.0, head.dir.1 + head.pos.1));
 
-    if self.is_have_collides(desired_pos) {
+    if self.is_occupied(desired_pos) {
       panic!("Loss")
     }
 
@@ -89,10 +89,9 @@ impl Player {
     true
   }
 
-  fn is_have_collides(&self, desired_pos: (i16, i16)) -> bool {
+  pub fn is_occupied(&self, desired_pos: (i16, i16)) -> bool {
     for part in self.parts.iter() {
       if part.pos == desired_pos {
-        println!("Collides with part {:?}", part.pos);
         return true
       }
     }
@@ -100,7 +99,7 @@ impl Player {
     false
   }
 
-  fn head(&self) -> &Part {
+  pub fn head(&self) -> &Part {
     self.parts.first().unwrap()
   }
   

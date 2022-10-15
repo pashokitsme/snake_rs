@@ -54,27 +54,13 @@ impl Player {
       0 => 50,
       _ => 110
     };
-    self.tick_move(controls::get_input(timeout));
+    let input = controls::get_input(timeout);
+    if self.tick_head(input) {
+      self.tick_move();
+    }
   }
 
-  fn tick_move(&mut self, new_dir: Option<(i16, i16)>) {
-    {
-      match new_dir {
-        Some(x) => {
-          self.head_mut().set_dir(x);
-        },
-        None => return,
-      }
-      let head = self.head().to_owned();
-      let desired_pos = utils::wrapped_pos(self.field_size, (head.dir.0 + head.pos.0, head.dir.1 + head.pos.1));
-
-      if self.is_have_collides(desired_pos) {
-        panic!("Loss")
-      }
-
-      self.head_mut().pos = desired_pos;
-    }
-
+  fn tick_move(&mut self) {
     for i in 1..self.parts.len() {
       let slice = self.parts.split_at_mut(i);
       let mut this = slice.1.first_mut().unwrap();
@@ -83,6 +69,24 @@ impl Player {
 
       this.pos = utils::wrapped_pos(self.field_size, (this.dir.0 + this.pos.0, this.dir.1 + this.pos.1));
     }
+  }
+
+  fn tick_head(&mut self, new_dir: Option<(i16, i16)>) -> bool {
+    match new_dir {
+      Some(x) => {
+        self.head_mut().set_dir(x);
+      },
+      None => return false,
+    }
+    let head = self.head().to_owned();
+    let desired_pos = utils::wrapped_pos(self.field_size, (head.dir.0 + head.pos.0, head.dir.1 + head.pos.1));
+
+    if self.is_have_collides(desired_pos) {
+      panic!("Loss")
+    }
+
+    self.head_mut().pos = desired_pos;
+    true
   }
 
   fn is_have_collides(&self, desired_pos: (i16, i16)) -> bool {

@@ -10,15 +10,15 @@ pub struct Part {
 }
 
 impl Part {
-    pub fn set_dir(&mut self, new: (i16, i16)) {
-      self.prev_dir = self.dir;
-      self.dir = new;
-    }
+  pub fn set_dir(&mut self, new: (i16, i16)) {
+    self.prev_dir = self.dir;
+    self.dir = new;
+  }
 }
 
 pub struct Player {
-  field_size: (i16, i16),
-  parts: Vec<Part>
+  pub parts: Vec<Part>,
+  field_size: (i16, i16)
 }
 
 impl Player {
@@ -33,20 +33,21 @@ impl Player {
 
   pub fn add_part(&mut self) {
     let last = self.tail();
-    let pos = (last.pos.0 + (self.head().dir.0 * -1), last.pos.1 + (self.head().dir.1 * -1));
-    for part in &self.parts {
-      if part.pos == pos {
-        return;
-      }
+    let pos = (last.pos.0 + (-last.dir.0), last.pos.1 + (-last.dir.1));
+    if self.parts.iter().any(|p| p.pos == pos) {
+      return
     }
     self.parts.push(Part { pos, symbol: b'o', dir: last.dir, prev_dir: last.prev_dir });
   }
 
-  pub fn render(&self, buf: &mut Vec<Vec<u8>>) {
-    for part in &self.parts {
-      let pos = part.pos;
-      buf[pos.1 as usize - 1][pos.0 as usize - 1] = part.symbol;
+  pub fn remove_part(&mut self) {
+    if self.parts.len() > 1 {
+      self.parts.pop();
     }
+  }
+
+  pub fn render(&self, buf: &mut [Vec<u8>]) {
+    self.parts.iter().for_each(|p| buf[(p.pos.1 - 1) as usize][(p.pos.0 - 1) as usize] = p.symbol);
   }
 
   pub fn tick(&mut self) {
@@ -62,12 +63,9 @@ impl Player {
 
   fn tick_move(&mut self) {
     for i in 1..self.parts.len() {
-      let slice = self.parts.split_at_mut(i);
-      let mut this = slice.1.first_mut().unwrap();
-      let prev = slice.0.last().unwrap();
-      this.set_dir(prev.prev_dir);
-
-      this.pos = utils::wrapped_pos(self.field_size, (this.dir.0 + this.pos.0, this.dir.1 + this.pos.1));
+      let prev = self.parts[i - 1].prev_dir;
+      self.parts[i].set_dir(prev);
+      self.parts[i].pos = utils::wrapped_pos(self.field_size, (self.parts[i].dir.0 + self.parts[i].pos.0, self.parts[i].dir.1 + self.parts[i].pos.1));
     }
   }
 
@@ -81,7 +79,7 @@ impl Player {
     let head = self.head().to_owned();
     let desired_pos = utils::wrapped_pos(self.field_size, (head.dir.0 + head.pos.0, head.dir.1 + head.pos.1));
 
-    if self.is_occupied(desired_pos) {
+    if self.is_occupied(desired_pos).is_some() {
       panic!("Loss")
     }
 
@@ -89,14 +87,8 @@ impl Player {
     true
   }
 
-  pub fn is_occupied(&self, desired_pos: (i16, i16)) -> bool {
-    for part in self.parts.iter() {
-      if part.pos == desired_pos {
-        return true
-      }
-    }
-
-    false
+  pub fn is_occupied(&self, pos: (i16, i16)) -> Option<&Part> {
+    self.parts.iter().find(|part| part.pos == pos)
   }
 
   pub fn head(&self) -> &Part {

@@ -2,7 +2,7 @@ use std::io::{stdout, Write};
 use crossterm::execute;
 use crate::utils::console::{cursor, clear};
 
-use super::player::Player;
+use super::{player::Player, bonuses::BonusProvider};
 
 pub struct Renderer {
   pub size: (i16, i16),
@@ -11,8 +11,19 @@ pub struct Renderer {
 }
 
 impl Renderer {
-  pub fn render(&mut self, player: &Player) {
+  pub fn new(size: (i16, i16)) -> Renderer {
+    clear::all();
+    cursor::to(0, 0);
+    let buf = Renderer::get_default_buf(size);
+    execute!(stdout(), crossterm::cursor::Hide).unwrap();
+    let r = Renderer { size, default_buf: buf.clone(), buf };
+    r.display_buf();
+    r
+  }
+
+  pub fn render(&mut self, player: &Player, bonuses: &BonusProvider) {
     self.prepare();
+    bonuses.render(&mut self.buf);
     player.render(&mut self.buf);
     self.display_buf();
   }
@@ -34,16 +45,6 @@ impl Renderer {
     cursor::to(0, 0);
     clear::under_cursor();
     self.buf = self.default_buf.clone();
-  }
-
-  pub fn new(size: (i16, i16)) -> Renderer {
-    clear::all();
-    cursor::to(0, 0);
-    let buf = Renderer::get_default_buf(size);
-    execute!(stdout(), crossterm::cursor::Hide).unwrap();
-    let r = Renderer { size, default_buf: buf.clone(), buf };
-    r.display_buf();
-    r
   }
 
   fn get_default_buf(size: (i16, i16)) -> Vec<Vec<u8>> {

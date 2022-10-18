@@ -51,11 +51,11 @@ impl Player {
   }
 
   pub fn tick(&mut self) {
-    let timeout = match self.head().dir.1 {
-      0 => 50,
-      _ => 110
-    };
-    let input = controls::get_input(timeout);
+    // let timeout = match self.head().dir.1 {
+    //   0 => 50,
+    //   _ => 110
+    // };
+    let input = controls::get_input(u64::MAX);
     if self.tick_head(input) {
       self.tick_move();
     }
@@ -68,7 +68,7 @@ impl Player {
       self.parts[i].pos = utils::wrapped_pos(self.field_size, (self.parts[i].dir.0 + self.parts[i].pos.0, self.parts[i].dir.1 + self.parts[i].pos.1));
     }
   }
-
+  
   fn tick_head(&mut self, new_dir: Option<(i16, i16)>) -> bool {
     match new_dir {
       Some(x) => {

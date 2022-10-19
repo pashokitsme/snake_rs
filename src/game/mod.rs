@@ -40,7 +40,8 @@ impl Game {
   }
 
   fn loss(&mut self) {
-    println!("Ты проиграл, {}", POSSIBLE_INSULTS[rand::thread_rng().gen_range(0..POSSIBLE_INSULTS.len())])
+    println!("Ты проиграл, {}. Нажми что-нибудь для выхода.", POSSIBLE_INSULTS[rand::thread_rng().gen_range(0..POSSIBLE_INSULTS.len())]);
+    crossterm::event::read().unwrap();
   }
 
   fn tick(&mut self) {

@@ -4,6 +4,6 @@ mod utils;
 use game::Game;
 
 fn main() {
-  let mut game = Game::new((64, 24), 0);
+  let mut game = Game::new((64, 24), 4);
   game.start();
 }

@@ -6,11 +6,14 @@ mod renderer;
 mod player;
 mod controls;
 
+const POSSIBLE_INSULTS: [&str; 6] = ["нуп", "интернет-нубасик", "дэб", "дурак", "дуралей", "научись играть"];
+
 pub struct Game {
   player: Player,
   bonuses: BonusProvider,
   renderer: Renderer,
-  field_size: (i16, i16)
+  field_size: (i16, i16),
+  running: bool,
 }
 
 impl Game {
@@ -18,18 +21,30 @@ impl Game {
     let player = Player::new(size, init_parts);
     let renderer = Renderer::new(size);
     let bonuses = BonusProvider::new();
-    Game { player, bonuses, renderer, field_size: size }
+    Game { player, bonuses, renderer, field_size: size, running: false }
   }
 
   pub fn start(&mut self) {
-    self.renderer.render(&self.player, &self.bonuses);
+    self.running = true;
+    self.render();
     loop {
       self.next();
+      if !self.running {
+        break;
+      }
+    }
+
+    if self.player.is_lost {
+      self.loss()
     }
   }
 
+  fn loss(&mut self) {
+    println!("Ты проиграл, {}", POSSIBLE_INSULTS[rand::thread_rng().gen_range(0..POSSIBLE_INSULTS.len())])
+  }
+
   fn tick(&mut self) {
-    if self.bonuses.current_count() < 2 && rand::random::<f64>() < 0.1 {
+    if self.bonuses.current_count() < 2 && rand::random::<f64>() < 0.05 {
       match rand::random::<f64>() {
         x if x > 0.95 => self.bonuses.place_removepart(self.random_pos()),
         _ => self.bonuses.place_addpart(self.random_pos())
@@ -38,11 +53,19 @@ impl Game {
 
     self.player.tick();
     self.bonuses.tick(&mut self.player);
+
+    if self.player.is_lost {
+      self.running = false;
+    }
   }
 
   fn next(&mut self) {
     self.tick();
-    self.renderer.render(&self.player, &self.bonuses);
+    self.render();
+  }
+
+  fn render(&mut self) {
+    self.renderer.render(&self.player, &self.bonuses)
   }
 
   fn random_pos(&self) -> (i16, i16) {

@@ -16,8 +16,14 @@ pub struct Bonus {
 impl Bonus {
   pub fn affect(&mut self, player: &mut Player) {
     match self.kind {
-      BonusKind::AddPart => player.add_part(),
-      BonusKind::RemovePart => player.remove_part()
+      BonusKind::AddPart => {
+        player.add_part();
+        player.score += 1;
+      },
+      BonusKind::RemovePart => { 
+        player.remove_part();
+        player.score += 2;
+      }
     }
 
     self.used = true;

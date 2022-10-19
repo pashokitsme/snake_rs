@@ -18,13 +18,15 @@ impl Part {
 
 pub struct Player {
   pub parts: Vec<Part>,
+  pub score: i32,
+  pub is_lost: bool,
   field_size: (i16, i16)
 }
 
 impl Player {
   pub fn new(size: (i16, i16), parts: usize) -> Player {
     let head = Part { pos: (size.0 / 2, size.1 / 2), symbol: b'O', dir: (1, 0), prev_dir: (1, 0) };
-    let mut pl = Player { field_size: size, parts: vec![head] };
+    let mut pl = Player { field_size: size, parts: vec![head], is_lost: false, score: 0 };
     for _ in 0..parts {
       pl.add_part()
     }
@@ -76,11 +78,12 @@ impl Player {
       },
       None => return false,
     }
-    let head = self.head().to_owned();
+    let head = self.head();
     let desired_pos = utils::wrapped_pos(self.field_size, (head.dir.0 + head.pos.0, head.dir.1 + head.pos.1));
 
     if self.is_occupied(desired_pos).is_some() {
-      panic!("Loss")
+      self.is_lost = true;
+      return false;
     }
 
     self.head_mut().pos = desired_pos;

@@ -26,6 +26,9 @@ impl Renderer {
     bonuses.render(&mut self.buf);
     player.render(&mut self.buf);
     self.display_buf();
+    self.display_hud(player);
+
+    stdout().flush().unwrap();
   }
   
   fn display_buf(&self) {
@@ -35,10 +38,11 @@ impl Renderer {
       d_buf.push(b'\n')
     }
 
-    stdout().write_all(&d_buf)
-        .expect("Error while displaying buf");
-    stdout().flush()
-        .expect("Error while flushing display");
+    stdout().write_all(&d_buf).unwrap();
+  }
+
+  fn display_hud(&self, player: &Player) {
+    println!("Очки: {}. Длина ужика: {}", player.score, player.parts.len());
   }
   
   fn prepare(&mut self) {

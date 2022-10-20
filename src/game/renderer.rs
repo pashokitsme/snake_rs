@@ -51,6 +51,7 @@ impl Renderer {
     self.buf = self.default_buf.clone();
   }
 
+  #[allow(clippy::needless_range_loop)]
   fn get_default_buf(size: (i16, i16)) -> Vec<Vec<u8>> {
     let size = (size.0 as usize, size.1 as usize);
     let mut buf = vec![vec![b' '; size.0]; size.1];

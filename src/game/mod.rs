@@ -5,8 +5,6 @@ mod bonuses;
 mod renderer;
 mod player;
 
-const POSSIBLE_INSULTS: [&str; 6] = ["нуп", "интернет-нубасик", "дэб", "дурак", "дуралей", "научись играть"];
-
 pub struct InitSettings {
   pub field_size: (i16, i16),
   pub input_timeout: u64,
@@ -45,7 +43,7 @@ impl Game {
   }
 
   fn loss(&mut self) {
-    println!("Ты проиграл, {}. Нажми что-нибудь для выхода.", POSSIBLE_INSULTS[rand::thread_rng().gen_range(0..POSSIBLE_INSULTS.len())]);
+    println!("Ты проиграл. Нажми что-нибудь для выхода.");
     crossterm::event::read().unwrap();
   }
 

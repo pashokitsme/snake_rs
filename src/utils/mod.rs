@@ -1,4 +1,5 @@
 pub mod console;
+pub mod controls;
 
 pub fn wrapped_pos(bounds: (i16, i16), desired: (i16, i16)) -> (i16, i16) {
   let mut result = desired; 

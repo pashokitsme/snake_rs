@@ -4,9 +4,14 @@ use rand::Rng;
 mod bonuses;
 mod renderer;
 mod player;
-mod controls;
 
 const POSSIBLE_INSULTS: [&str; 6] = ["нуп", "интернет-нубасик", "дэб", "дурак", "дуралей", "научись играть"];
+
+pub struct InitSettings {
+  pub field_size: (i16, i16),
+  pub input_timeout: u64,
+  pub parts_count: usize,
+}
 
 pub struct Game {
   player: Player,
@@ -17,11 +22,11 @@ pub struct Game {
 }
 
 impl Game {
-  pub fn new(size: (i16, i16), init_parts: usize) -> Game {
-    let player = Player::new(size, init_parts);
-    let renderer = Renderer::new(size);
+  pub fn new(init: InitSettings) -> Game {
+    let player = Player::new(&init);
+    let renderer = Renderer::new(init.field_size);
     let bonuses = BonusProvider::new();
-    Game { player, bonuses, renderer, field_size: size, running: false }
+    Game { player, bonuses, renderer, field_size: init.field_size, running: false }
   }
 
   pub fn start(&mut self) {

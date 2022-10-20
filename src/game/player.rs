@@ -1,5 +1,6 @@
-use crate::utils;
-use crate::game::controls;
+use crate::utils::{self, controls::get_input};
+
+use super::InitSettings;
 
 #[derive(Clone, Copy)]
 pub struct Part {
@@ -20,14 +21,16 @@ pub struct Player {
   pub parts: Vec<Part>,
   pub score: i32,
   pub is_lost: bool,
-  field_size: (i16, i16)
+  field_size: (i16, i16),
+  input_timeout: u64,
 }
 
 impl Player {
-  pub fn new(size: (i16, i16), parts: usize) -> Player {
+  pub fn new(init: &InitSettings) -> Player {
+    let size = init.field_size;
     let head = Part { pos: (size.0 / 2, size.1 / 2), symbol: b'O', dir: (1, 0), prev_dir: (1, 0) };
-    let mut pl = Player { field_size: size, parts: vec![head], is_lost: false, score: 0 };
-    for _ in 0..parts {
+    let mut pl = Player { field_size: size, parts: vec![head], is_lost: false, score: 0, input_timeout: init.input_timeout };
+    for _ in 0..init.parts_count {
       pl.add_part()
     }
     pl
@@ -57,7 +60,7 @@ impl Player {
     //   0 => 50,
     //   _ => 110
     // };
-    let input = controls::get_input(u64::MAX);
+    let input = get_input(self.input_timeout);
     if self.tick_head(input) {
       self.tick_move();
     }

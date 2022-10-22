@@ -7,7 +7,7 @@ mod player;
 
 pub struct InitSettings {
   pub field_size: (i16, i16),
-  pub input_timeout: u64,
+  pub input_timeout: (u64, u64),
   pub parts_count: usize,
 }
 

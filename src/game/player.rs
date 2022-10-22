@@ -22,7 +22,7 @@ pub struct Player {
   pub score: i32,
   pub is_lost: bool,
   field_size: (i16, i16),
-  input_timeout: u64,
+  input_timeout: (u64, u64),
 }
 
 impl Player {
@@ -56,11 +56,11 @@ impl Player {
   }
 
   pub fn tick(&mut self) {
-    // let timeout = match self.head().dir.1 {
-    //   0 => 50,
-    //   _ => 110
-    // };
-    let input = get_input(self.input_timeout);
+    let timeout = match self.head().dir.1 {
+      0 => self.input_timeout.0,
+      _ => self.input_timeout.1
+    };
+    let input = get_input(timeout);
     if self.tick_head(input) {
       self.tick_move();
     }
@@ -79,7 +79,10 @@ impl Player {
       Some(x) => {
         self.head_mut().set_dir(x);
       },
-      None => return false,
+      None => {
+        let head = self.head_mut(); 
+        head.set_dir(head.dir)
+      },
     }
     let head = self.head();
     let desired_pos = utils::wrapped_pos(self.field_size, (head.dir.0 + head.pos.0, head.dir.1 + head.pos.1));

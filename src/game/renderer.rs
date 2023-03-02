@@ -2,7 +2,11 @@ use crate::utils::console::{clear, cursor};
 use crossterm::execute;
 use std::io::{stdout, Write};
 
-use super::{bonuses::BonusProvider, player::Player};
+use super::{bonuses::EffectSpawner, player::Player};
+
+pub trait Render {
+  fn render(&self, buffer: &mut [Vec<u8>]);
+}
 
 pub struct Renderer {
   pub size: (i16, i16),
@@ -17,41 +21,42 @@ impl Renderer {
     let buf = Renderer::get_default_buf(size);
     execute!(stdout(), crossterm::cursor::Hide).unwrap();
     let r = Renderer { size, default_buf: buf.clone(), buf };
-    r.display_buf();
+    r.print_buffer();
     r
   }
 
-  pub fn render(&mut self, player: &Player, bonuses: &BonusProvider) {
+  pub fn render(&mut self, player: &Player, bonuses: &EffectSpawner) {
     self.prepare();
     bonuses.render(&mut self.buf);
     player.render(&mut self.buf);
-    self.display_buf();
-    self.display_hud(player);
+    self.print_buffer();
+    self.print_hud(player);
 
     stdout().flush().unwrap();
   }
 
-  fn display_buf(&self) {
+  fn print_buffer(&self) {
     let mut d_buf: Vec<u8> = vec![];
     for line in &self.buf {
       d_buf.extend(line);
       d_buf.push(b'\n')
     }
 
-    stdout().write_all(&d_buf).unwrap();
+    stdout().flush().expect("Couldn't flush");
+    stdout().lock().write_all(&d_buf).expect("Couldn't write to stdout");
+    stdout().flush().expect("Couldn't flush");
   }
 
-  fn display_hud(&self, player: &Player) {
-    println!("Очки: {}. Длина ужика: {}", player.score, player.parts.len());
+  fn print_hud(&self, player: &Player) {
+    println!("Очки: {}. Длина: {}", player.score, player.parts.len());
   }
 
   fn prepare(&mut self) {
+    clear::upper_cursor();
     cursor::to(0, 0);
-    clear::under_cursor();
     self.buf = self.default_buf.clone();
   }
 
-  #[allow(clippy::needless_range_loop)]
   fn get_default_buf(size: (i16, i16)) -> Vec<Vec<u8>> {
     let size = (size.0 as usize, size.1 as usize);
     let mut buf = vec![vec![b' '; size.0]; size.1];

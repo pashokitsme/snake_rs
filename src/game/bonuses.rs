@@ -1,58 +1,64 @@
-use super::player::Player;
+use super::{player::Player, renderer::Render};
 
-pub enum BonusKind {
-  AddPart,
+pub enum EffectKind {
+  Score(i32),
   RemovePart,
 }
 
-pub struct Bonus {
+impl EffectKind {
+  pub fn score(&self) -> i32 {
+    match self {
+      EffectKind::Score(x) => *x,
+      EffectKind::RemovePart => 2,
+    }
+  }
+}
+
+pub struct Effect {
   pub pos: (i16, i16),
   pub alive_for_ticks: i16,
   pub used: bool,
-  pub kind: BonusKind,
-  pub symbol: u8,
+  pub kind: EffectKind,
+  symbol: u8,
 }
 
-impl Bonus {
+impl Effect {
   pub fn affect(&mut self, player: &mut Player) {
     match self.kind {
-      BonusKind::AddPart => {
-        player.add_part();
-        player.score += 1;
-      }
-      BonusKind::RemovePart => {
-        player.remove_part();
-        player.score += 2;
-      }
+      EffectKind::Score(_) => player.add_part(),
+      EffectKind::RemovePart => player.remove_part(),
     }
-
+    player.score += self.kind.score();
     self.used = true;
   }
 }
 
-pub struct BonusProvider {
-  bonuses: Vec<Bonus>,
+impl Render for Effect {
+  fn render(&self, buffer: &mut [Vec<u8>]) {
+    buffer[(self.pos.1 - 1) as usize][(self.pos.0 - 1) as usize] = self.symbol
+  }
 }
 
-impl BonusProvider {
-  pub fn new() -> BonusProvider {
-    BonusProvider { bonuses: vec![] }
+pub struct EffectSpawner {
+  bonuses: Vec<Effect>,
+}
+
+impl EffectSpawner {
+  pub fn new() -> EffectSpawner {
+    EffectSpawner { bonuses: vec![] }
   }
 
   pub fn render(&self, buf: &mut [Vec<u8>]) {
-    self
-      .bonuses
-      .iter()
-      .for_each(|b| buf[(b.pos.1 - 1) as usize][(b.pos.0 - 1) as usize] = b.symbol);
+    self.bonuses.iter().for_each(|b| b.render(buf));
   }
 
-  pub fn place_addpart(&mut self, pos: (i16, i16)) {
-    let bonus = Bonus { pos, alive_for_ticks: 32000, used: false, kind: BonusKind::AddPart, symbol: b'@' };
+  pub fn add(&mut self, pos: (i16, i16), kind: EffectKind) {
+    let bonus = Effect { pos, alive_for_ticks: 32000, used: false, kind, symbol: b'@' };
     self.bonuses.push(bonus);
   }
 
-  pub fn place_removepart(&mut self, pos: (i16, i16)) {
-    let bonus = Bonus { pos, alive_for_ticks: 32000, used: false, kind: BonusKind::RemovePart, symbol: b'%' };
+  pub fn remove(&mut self, pos: (i16, i16)) {
+    let bonus = Effect { pos, alive_for_ticks: 32000, used: false, kind: EffectKind::RemovePart, symbol: b'%' };
     self.bonuses.push(bonus);
   }
 
@@ -64,7 +70,7 @@ impl BonusProvider {
     self.tick_lifetimes();
   }
 
-  pub fn is_occupied(&self, pos: (i16, i16)) -> Option<&Bonus> {
+  pub fn occupied_by(&self, pos: (i16, i16)) -> Option<&Effect> {
     self.bonuses.iter().find(|b| b.pos == pos)
   }
 

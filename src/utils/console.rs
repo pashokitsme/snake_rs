@@ -3,8 +3,8 @@ pub mod clear {
   use crossterm::terminal::{Clear, ClearType};
   use std::io::stdout;
 
-  pub fn under_cursor() {
-    execute!(stdout(), Clear(ClearType::FromCursorDown)).unwrap()
+  pub fn upper_cursor() {
+    execute!(stdout(), Clear(ClearType::FromCursorUp)).unwrap()
   }
 
   pub fn all() {

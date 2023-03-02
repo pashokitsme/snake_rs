@@ -1,12 +1,9 @@
-use self::{bonuses::BonusProvider, player::Player, renderer::Renderer};
+use self::{bonuses::EffectSpawner, player::Player, renderer::Renderer};
 use rand::Rng;
 
 mod bonuses;
 mod player;
 mod renderer;
-
-const POSSIBLE_INSULTS: [&str; 5] =
-  ["нубик", "кибер-нуб", "дурак. Похоже, ты не достоин этого ужика", "плохой ты, всё таки, укротитель ужа", "нуп"];
 
 pub struct InitSettings {
   pub field_size: (i16, i16),
@@ -16,7 +13,7 @@ pub struct InitSettings {
 
 pub struct Game {
   player: Player,
-  bonuses: BonusProvider,
+  bonuses: EffectSpawner,
   renderer: Renderer,
   field_size: (i16, i16),
   running: bool,
@@ -26,7 +23,7 @@ impl Game {
   pub fn new(init: InitSettings) -> Game {
     let player = Player::new(&init);
     let renderer = Renderer::new(init.field_size);
-    let bonuses = BonusProvider::new();
+    let bonuses = EffectSpawner::new();
     Game { player, bonuses, renderer, field_size: init.field_size, running: false }
   }
 
@@ -46,18 +43,15 @@ impl Game {
   }
 
   fn loss(&mut self) {
-    println!(
-      "Ты проиграл, {}. \nНажми что-нибудь для выхода.",
-      POSSIBLE_INSULTS[rand::thread_rng().gen_range(0..POSSIBLE_INSULTS.len())]
-    );
+    println!("\nТы проиграл.\nНажми что-нибудь для выхода.",);
     crossterm::event::read().unwrap();
   }
 
   fn tick(&mut self) {
     if self.bonuses.current_count() < 2 && rand::random::<f64>() < 0.05 {
       match rand::random::<f64>() {
-        x if x > 0.95 => self.bonuses.place_removepart(self.random_pos()),
-        _ => self.bonuses.place_addpart(self.random_pos()),
+        x if x > 0.95 => self.bonuses.remove(self.random_pos()),
+        _ => self.bonuses.add(self.random_pos(), bonuses::EffectKind::Score(1)),
       }
     }
 
@@ -88,6 +82,6 @@ impl Game {
   }
 
   fn is_occupied(&self, pos: (i16, i16)) -> bool {
-    self.player.is_occupied(pos).is_some() || self.bonuses.is_occupied(pos).is_some()
+    self.player.is_occupied(pos).is_some() || self.bonuses.occupied_by(pos).is_some()
   }
 }

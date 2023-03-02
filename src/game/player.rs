@@ -1,13 +1,13 @@
 use crate::utils::{self, controls::get_input};
 
-use super::InitSettings;
+use super::{renderer::Render, InitSettings};
 
 #[derive(Clone, Copy)]
 pub struct Part {
   pub pos: (i16, i16),
   pub dir: (i16, i16),
   pub prev_dir: (i16, i16),
-  pub symbol: u8,
+  symbol: u8,
 }
 
 impl Part {
@@ -17,12 +17,24 @@ impl Part {
   }
 }
 
+impl Render for Part {
+  fn render(&self, buffer: &mut [Vec<u8>]) {
+    buffer[(self.pos.1 - 1) as usize][(self.pos.0 - 1) as usize] = self.symbol
+  }
+}
+
 pub struct Player {
   pub parts: Vec<Part>,
   pub score: i32,
   pub is_lost: bool,
   field_size: (i16, i16),
   input_timeout: (u64, u64),
+}
+
+impl Render for Player {
+  fn render(&self, buf: &mut [Vec<u8>]) {
+    self.parts.iter().for_each(|p| p.render(buf))
+  }
 }
 
 impl Player {
@@ -51,13 +63,6 @@ impl Player {
     if self.parts.len() > 1 {
       self.parts.pop();
     }
-  }
-
-  pub fn render(&self, buf: &mut [Vec<u8>]) {
-    self
-      .parts
-      .iter()
-      .for_each(|p| buf[(p.pos.1 - 1) as usize][(p.pos.0 - 1) as usize] = p.symbol);
   }
 
   pub fn tick(&mut self) {

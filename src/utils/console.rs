@@ -1,7 +1,7 @@
 pub mod clear {
-  use std::io::stdout;
-  use crossterm::terminal::{ Clear, ClearType };
   use crossterm::execute;
+  use crossterm::terminal::{Clear, ClearType};
+  use std::io::stdout;
 
   pub fn under_cursor() {
     execute!(stdout(), Clear(ClearType::FromCursorDown)).unwrap()
@@ -13,8 +13,8 @@ pub mod clear {
 }
 
 pub mod cursor {
+  use crossterm::{cursor, execute};
   use std::io::stdout;
-  use crossterm::{execute, cursor};
 
   pub fn to(column: u16, row: u16) {
     execute!(stdout(), cursor::MoveTo(column, row)).unwrap();

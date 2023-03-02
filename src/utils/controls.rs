@@ -1,5 +1,5 @@
-use std::time::Duration;
 use crossterm::event::{poll, read, Event, KeyCode};
+use std::time::Duration;
 
 pub fn get_input(timeout: u64) -> Option<(i16, i16)> {
   if !poll(Duration::from_millis(timeout)).unwrap() {

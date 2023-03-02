@@ -1,11 +1,12 @@
-use self::{player::Player, renderer::Renderer, bonuses::BonusProvider};
+use self::{bonuses::BonusProvider, player::Player, renderer::Renderer};
 use rand::Rng;
 
 mod bonuses;
-mod renderer;
 mod player;
+mod renderer;
 
-const POSSIBLE_INSULTS: [&str; 5] = ["нубик", "кибер-нуб", "дурак. Похоже, ты не достоин этого ужика", "плохой ты, всё таки, укротитель ужа", "нуп"];
+const POSSIBLE_INSULTS: [&str; 5] =
+  ["нубик", "кибер-нуб", "дурак. Похоже, ты не достоин этого ужика", "плохой ты, всё таки, укротитель ужа", "нуп"];
 
 pub struct InitSettings {
   pub field_size: (i16, i16),
@@ -45,7 +46,10 @@ impl Game {
   }
 
   fn loss(&mut self) {
-    println!("Ты проиграл, {}. \nНажми что-нибудь для выхода.", POSSIBLE_INSULTS[rand::thread_rng().gen_range(0..POSSIBLE_INSULTS.len())]);
+    println!(
+      "Ты проиграл, {}. \nНажми что-нибудь для выхода.",
+      POSSIBLE_INSULTS[rand::thread_rng().gen_range(0..POSSIBLE_INSULTS.len())]
+    );
     crossterm::event::read().unwrap();
   }
 
@@ -53,7 +57,7 @@ impl Game {
     if self.bonuses.current_count() < 2 && rand::random::<f64>() < 0.05 {
       match rand::random::<f64>() {
         x if x > 0.95 => self.bonuses.place_removepart(self.random_pos()),
-        _ => self.bonuses.place_addpart(self.random_pos())
+        _ => self.bonuses.place_addpart(self.random_pos()),
       }
     }
 

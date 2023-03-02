@@ -1,8 +1,8 @@
 use super::player::Player;
 
 pub enum BonusKind {
-  AddPart, 
-  RemovePart
+  AddPart,
+  RemovePart,
 }
 
 pub struct Bonus {
@@ -10,7 +10,7 @@ pub struct Bonus {
   pub alive_for_ticks: i16,
   pub used: bool,
   pub kind: BonusKind,
-  pub symbol: u8
+  pub symbol: u8,
 }
 
 impl Bonus {
@@ -19,8 +19,8 @@ impl Bonus {
       BonusKind::AddPart => {
         player.add_part();
         player.score += 1;
-      },
-      BonusKind::RemovePart => { 
+      }
+      BonusKind::RemovePart => {
         player.remove_part();
         player.score += 2;
       }
@@ -31,7 +31,7 @@ impl Bonus {
 }
 
 pub struct BonusProvider {
-  bonuses: Vec<Bonus>
+  bonuses: Vec<Bonus>,
 }
 
 impl BonusProvider {
@@ -40,7 +40,10 @@ impl BonusProvider {
   }
 
   pub fn render(&self, buf: &mut [Vec<u8>]) {
-    self.bonuses.iter().for_each(|b| buf[(b.pos.1 - 1) as usize][(b.pos.0 - 1) as usize] = b.symbol);
+    self
+      .bonuses
+      .iter()
+      .for_each(|b| buf[(b.pos.1 - 1) as usize][(b.pos.0 - 1) as usize] = b.symbol);
   }
 
   pub fn place_addpart(&mut self, pos: (i16, i16)) {

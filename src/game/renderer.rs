@@ -1,8 +1,8 @@
-use std::io::{stdout, Write};
+use crate::utils::console::{clear, cursor};
 use crossterm::execute;
-use crate::utils::console::{cursor, clear};
+use std::io::{stdout, Write};
 
-use super::{player::Player, bonuses::BonusProvider};
+use super::{bonuses::BonusProvider, player::Player};
 
 pub struct Renderer {
   pub size: (i16, i16),
@@ -30,7 +30,7 @@ impl Renderer {
 
     stdout().flush().unwrap();
   }
-  
+
   fn display_buf(&self) {
     let mut d_buf: Vec<u8> = vec![];
     for line in &self.buf {
@@ -44,7 +44,7 @@ impl Renderer {
   fn display_hud(&self, player: &Player) {
     println!("Очки: {}. Длина ужика: {}", player.score, player.parts.len());
   }
-  
+
   fn prepare(&mut self) {
     cursor::to(0, 0);
     clear::under_cursor();
@@ -76,4 +76,3 @@ impl Renderer {
     buf
   }
 }
-

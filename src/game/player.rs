@@ -7,7 +7,7 @@ pub struct Part {
   pub pos: (i16, i16),
   pub dir: (i16, i16),
   pub prev_dir: (i16, i16),
-  pub symbol: u8
+  pub symbol: u8,
 }
 
 impl Part {
@@ -40,9 +40,11 @@ impl Player {
     let last = self.tail();
     let pos = (last.pos.0 + (-last.dir.0), last.pos.1 + (-last.dir.1));
     if self.parts.iter().any(|p| p.pos == pos) {
-      return
+      return;
     }
-    self.parts.push(Part { pos, symbol: b'o', dir: last.dir, prev_dir: last.prev_dir });
+    self
+      .parts
+      .push(Part { pos, symbol: b'o', dir: last.dir, prev_dir: last.prev_dir });
   }
 
   pub fn remove_part(&mut self) {
@@ -52,13 +54,16 @@ impl Player {
   }
 
   pub fn render(&self, buf: &mut [Vec<u8>]) {
-    self.parts.iter().for_each(|p| buf[(p.pos.1 - 1) as usize][(p.pos.0 - 1) as usize] = p.symbol);
+    self
+      .parts
+      .iter()
+      .for_each(|p| buf[(p.pos.1 - 1) as usize][(p.pos.0 - 1) as usize] = p.symbol);
   }
 
   pub fn tick(&mut self) {
     let timeout = match self.head().dir.1 {
       0 => self.input_timeout.0,
-      _ => self.input_timeout.1
+      _ => self.input_timeout.1,
     };
     let input = get_input(timeout);
     if self.tick_head(input) {
@@ -70,19 +75,22 @@ impl Player {
     for i in 1..self.parts.len() {
       let prev = self.parts[i - 1].prev_dir;
       self.parts[i].set_dir(prev);
-      self.parts[i].pos = utils::wrapped_pos(self.field_size, (self.parts[i].dir.0 + self.parts[i].pos.0, self.parts[i].dir.1 + self.parts[i].pos.1));
+      self.parts[i].pos = utils::wrapped_pos(
+        self.field_size,
+        (self.parts[i].dir.0 + self.parts[i].pos.0, self.parts[i].dir.1 + self.parts[i].pos.1),
+      );
     }
   }
-  
+
   fn tick_head(&mut self, new_dir: Option<(i16, i16)>) -> bool {
     match new_dir {
       Some(x) => {
         self.head_mut().set_dir(x);
-      },
+      }
       None => {
-        let head = self.head_mut(); 
+        let head = self.head_mut();
         head.set_dir(head.dir)
-      },
+      }
     }
     let head = self.head();
     let desired_pos = utils::wrapped_pos(self.field_size, (head.dir.0 + head.pos.0, head.dir.1 + head.pos.1));
@@ -103,7 +111,7 @@ impl Player {
   pub fn head(&self) -> &Part {
     self.parts.first().unwrap()
   }
-  
+
   fn tail(&self) -> &Part {
     self.parts.last().unwrap()
   }
